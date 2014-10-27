@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.gmplaces.controlers.Utils.parseExceptions;
+
 /**
  * Created by roman vintonyak on 21.10.14.
  */
@@ -24,14 +26,15 @@ import java.util.List;
 public class DataServiceImpl implements IDataService {
 
     final Logger logger = Logger.getLogger(DataServiceImpl.class);
-    private final File file = new File("./log/addresses.xml");
-
+    private final File file = new File("./log/addresses.xml"); //xml file location
+    private static final String ERROR = "ERROR"; //Unsuccessful operation
+    private static final String SUCCESS = "SUCCESS"; //Successful operation
 
     //return all data from xml
     public List<Address> getData() {
 
-        List<Address> list = new ArrayList<Address>();
-        Document doc = null;
+        List<Address> list = new ArrayList<>();
+        Document doc;
         try {
             doc = getDocument(file);
             doc.getDocumentElement().normalize();
@@ -44,7 +47,7 @@ public class DataServiceImpl implements IDataService {
                 }
             }
         } catch (ParserConfigurationException | SAXException | IOException e) {
-            logger.error("Get all data error:", e);
+            logger.error(parseExceptions(e));
         }
         return list;
     }
@@ -57,26 +60,26 @@ public class DataServiceImpl implements IDataService {
             doc = getDocument(file);
             addNewElement(address, doc, doc.getDocumentElement());
             writeIntoFile(doc);
-            return "SUCCESS";
+            return SUCCESS;
         } catch (ParserConfigurationException | TransformerException | SAXException | IOException e) {
-            logger.error("Put data error:", e);
-            return "ERROR";
+            logger.error(parseExceptions(e));
+            return ERROR;
         }
     }
 
     //clear all data from xml file
     public String clearData() {
-        Document doc = null;
+        Document doc;
         try {
             doc = getDocument(file);
             Element rootElement = doc.getDocumentElement();
             clearChildNodes(rootElement);
             writeIntoFile(doc);
         } catch (ParserConfigurationException | TransformerException | SAXException | IOException e) {
-            logger.error("Clear all data error:", e);
-            return "ERROR";
+            logger.error(parseExceptions(e));
+            return ERROR;
         }
-        return "SUCCESS";
+        return SUCCESS;
     }
 
     //remove specific address from xml file
@@ -95,10 +98,10 @@ public class DataServiceImpl implements IDataService {
             }
             writeIntoFile(doc);
         } catch (ParserConfigurationException | TransformerException | SAXException | IOException e) {
-            logger.error("Remove data error:", e);
-            return "ERROR";
+            logger.error(parseExceptions(e));
+            return ERROR;
         }
-        return "SUCCESS";
+        return SUCCESS;
     }
 
     //get Document object
@@ -118,8 +121,6 @@ public class DataServiceImpl implements IDataService {
 
     //add new element into xml file
     private void addNewElement(Address address, Document doc, Element rootElement) throws TransformerException {
-
-
         Element addressElement = doc.createElement("address");
         rootElement.appendChild(addressElement);
 
